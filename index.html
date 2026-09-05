@@ -229,8 +229,8 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 @media(min-width: 700px) { .shell { padding-top: 25px; } .bottom { bottom: 22px; } }
 </style>
 
-<!-- Monetag SDK Script (Updated with Zone 11728094) -->
-<script src="//libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094"></script>
+<!-- Monetag SDK Script (Correct Tag Placement) -->
+<script src="//libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094" async></script>
 </head>
 <body>
 
@@ -406,7 +406,7 @@ function animateParticles() {
 initParticles();
 animateParticles();
 
-/* Monetag Ads Integration Logic */
+/* Monetag Ads Integration Logic - FIXED */
 let balance = Number(localStorage.getItem('cf_balance') || 100390);
 let tapCount = Number(localStorage.getItem('cf_tap_count') || 0);
 let adShowing = false;
@@ -417,39 +417,35 @@ function countTap() {
   if(tapCount >= 10) {
     tapCount = 0;
     localStorage.setItem('cf_tap_count', '0');
-    showMonetagAd();
+    triggerAdWithRetry(3); // Retry up to 3 times if loading
   }
 }
 
-function showMonetagAd() {
-  if(adShowing) return;
-  adShowing = true;
+function triggerAdWithRetry(attemptsLeft) {
+  if (adShowing) return;
 
-  try {
-    if(typeof window.show_11711270 === 'function') {
-      const result = window.show_11711270();
-      if(result && typeof result.then === 'function') {
-        result.catch(()=>{}).finally(()=> { adShowing = false; });
+  // Check all common Monetag global function triggers
+  const adFn = window.show_11711270 || window.show_11711270_ || window.show_rewarded || window.show_interstitial;
+
+  if (typeof adFn === 'function') {
+    adShowing = true;
+    try {
+      const res = adFn();
+      if (res && typeof res.then === 'function') {
+        res.catch(() => {}).finally(() => { adShowing = false; });
       } else {
-        setTimeout(()=> { adShowing = false; }, 1500);
+        setTimeout(() => { adShowing = false; }, 2000);
       }
-    } else {
-      // SDK delay retry mechanism
-      setTimeout(()=> {
-        try {
-          if(typeof window.show_11711270 === 'function') {
-            const result = window.show_11711270();
-            if(result && typeof result.then === 'function') result.catch(()=>{}).finally(()=> { adShowing = false; });
-            else setTimeout(()=> { adShowing = false; }, 1500);
-          } else {
-            adShowing = false;
-            toast('Ad service is loading. Try again.');
-          }
-        } catch(e) { adShowing = false; }
-      }, 1000);
+    } catch(e) {
+      adShowing = false;
     }
-  } catch(e) {
-    adShowing = false;
+  } else if (attemptsLeft > 0) {
+    // Retry every 800ms while SDK initializes
+    setTimeout(() => {
+      triggerAdWithRetry(attemptsLeft - 1);
+    }, 800);
+  } else {
+    toast('Ad loading... Please tap again');
   }
 }
 
