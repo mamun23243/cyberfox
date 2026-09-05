@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070c18">
+<title>CyberFox — Telegram Mini App</title>
+<style>
+:root {
+  --bg: #070c18;
+  --panel: #0f172a;
+  --panel2: #1e293b;
+  --cyan: #38bdf8;
+  --cyan2: #0284c7;
+  --green: #4ade80;
+  --pink: #f43f5e;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --gold: #fbbf24;
+  --shadow: 0 18px 45px rgba(0,0,0,0.45);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; font-family: Inter, system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+body { overflow-x: hidden; }
+button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+
+/* Canvas Particle Background */
+#particles-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+}
+
+.app {
+  width: 100%; min-height: 100vh; position: relative; overflow: hidden;
+  background: 
+    radial-gradient(circle at 90% 10%, rgba(56,189,248,0.2), transparent 25%),
+    radial-gradient(circle at 10% 80%, rgba(168,85,247,0.18), transparent 30%),
+    linear-gradient(145deg, #070c18 0%, #0f172a 50%, #131d33 100%);
+}
+.shell { width: min(100%, 430px); margin: auto; position: relative; z-index: 2; padding: 12px 12px 100px; }
+
+/* Topbar */
+.topbar { height: 55px; display: flex; align-items: center; justify-content: space-between; }
+.brand { font-weight: 900; letter-spacing: 0.5px; font-size: 20px; }
+.brand span { color: var(--cyan); }
+.iconbtn {
+  width: 42px; height: 42px; border-radius: 15px; background: rgba(30,41,59,0.8);
+  border: 1px solid rgba(56,189,248,0.2); display: grid; place-items: center; box-shadow: 0 7px 18px rgba(0,0,0,0.2);
+}
+
+/* User Profile */
+.profile {
+  display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(10px); border: 1px solid rgba(56,189,248,0.2); border-radius: 20px; padding: 10px 12px; box-shadow: var(--shadow);
+}
+.avatar {
+  width: 45px; height: 45px; border-radius: 50%; display: grid; place-items: center;
+  background: linear-gradient(135deg, #38bdf8, #0284c7); font-size: 26px; border: 2px solid #7dd3fc;
+}
+.userinfo { flex: 1; }
+.username { font-weight: 800; font-size: 15px; }
+.level { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.bell { position: relative; font-size: 22px; }
+.badge { position: absolute; right: -5px; top: -7px; background: var(--pink); border-radius: 12px; font-size: 10px; padding: 2px 6px; font-weight: 900; }
+
+.progress { height: 6px; background: #1e293b; border-radius: 20px; margin: 10px 1px 14px; overflow: hidden; }
+.progress i { display: block; width: 45%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat {
+  padding: 11px 12px; border-radius: 18px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px);
+  border: 1px solid rgba(56,189,248,0.15); display: flex; align-items: center; gap: 10px;
+}
+.stat b { font-size: 15px; }
+.stat small { display: block; color: var(--muted); font-size: 10px; }
+.coin-dot, .clock { width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; background: #8b5cf6; }
+.clock { background: #10b981; }
+
+/* Hero Section */
+.hero {
+  margin-top: 12px; min-height: 360px; border-radius: 30px; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(56,189,248,0.25), transparent 40%), linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.9) 70%, rgba(2,132,199,0.8) 100%);
+  border: 1px solid rgba(56,189,248,0.25); box-shadow: var(--shadow); backdrop-filter: blur(10px);
+}
+.hero:after {
+  content: ""; position: absolute; left: -15%; right: -15%; bottom: -45px; height: 140px;
+  background: radial-gradient(ellipse at center, rgba(56,189,248,0.8), rgba(2,132,199,0.4) 45%, transparent 72%); filter: blur(6px);
+}
+.earnrate { padding: 15px 18px 0; text-align: center; color: var(--muted); }
+.earnrate strong { font-size: 38px; display: block; color: #fff; letter-spacing: 1px; }
+.diamond { color: var(--cyan); font-size: 30px; margin-right: 6px; text-shadow: 0 0 15px var(--cyan); }
+
+/* NEW CYBER-ROBOT FOX STYLES */
+.fox-wrap { height: 200px; position: relative; display: grid; place-items: center; }
+.cyber-fox {
+  position: relative; width: 160px; height: 160px;
+  animation: robotFloat 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 15px 25px rgba(56,189,248,0.35));
+}
+@keyframes robotFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.02); }
+}
+
+.c-head {
+  position: absolute; top: 20px; left: 20px; width: 120px; height: 90px;
+  background: linear-gradient(135deg, #ff6b00, #ff8800);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 60%, 50% 100%, 0% 60%);
+  z-index: 5; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.c-ear {
+  position: absolute; top: -15px; width: 35px; height: 50px;
+  background: #202b3c; border: 2px solid #38bdf8; z-index: 4;
+}
+.c-ear.l { left: 20px; transform: rotate(-25deg) skewY(-10deg); }
+.c-ear.r { right: 20px; transform: rotate(25deg) skewY(10deg); }
+
+.visor {
+  position: absolute; top: 25px; left: 15px; width: 90px; height: 30px;
+  background: #091322; border: 2px solid #38bdf8; border-radius: 8px;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.visor-glow {
+  width: 70%; height: 6px; background: #38bdf8;
+  box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8; border-radius: 4px;
+  animation: visorScan 2s infinite alternate;
+}
+@keyframes visorScan {
+  0% { transform: translateX(-15px); }
+  100% { transform: translateX(15px); }
+}
+
+.c-snout {
+  position: absolute; bottom: 8px; left: 45px; width: 30px; height: 20px;
+  background: #e2e8f0; clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.c-nose {
+  width: 10px; height: 6px; background: #38bdf8; margin: 2px auto 0; border-radius: 2px;
+}
+
+.c-body {
+  position: absolute; bottom: 10px; left: 35px; width: 90px; height: 75px;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  border: 2px solid #ff6b00; border-radius: 20px 20px 35px 35px;
+  z-index: 2; display: grid; place-items: center;
+}
+.core-gem {
+  width: 22px; height: 22px; background: #38bdf8;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 12px #38bdf8; animation: pulseCore 1.5s infinite alternate;
+}
+@keyframes pulseCore {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+.c-tail {
+  position: absolute; right: -15px; bottom: 15px; width: 65px; height: 85px;
+  background: linear-gradient(135deg, #ff6b00, #38bdf8);
+  border-radius: 50% 50% 10% 50%; transform: rotate(-30deg); z-index: 1;
+}
+
+.upgrade {
+  position: relative; z-index: 20; display: block; margin: 0 auto; padding: 12px 30px;
+  border-radius: 30px; background: linear-gradient(180deg, #4ade80, #22c55e); color: #052e16;
+  font-weight: 900; box-shadow: 0 9px 25px rgba(74,222,128,0.3); font-size: 15px;
+}
+.upgrade:active { transform: scale(0.97); }
+
+/* Mining Switch */
+.mining {
+  margin-top: 12px; padding: 14px; border-radius: 22px; background: rgba(15,23,42,0.85);
+  border: 1px solid rgba(56,189,248,0.15); display: flex; align-items: center; justify-content: space-between;
+}
+.mining b { display: block; }
+.mining small { color: var(--muted); }
+.switch { width: 52px; height: 28px; border-radius: 30px; background: #334155; padding: 3px; }
+.switch i { display: block; width: 22px; height: 22px; border-radius: 50%; background: #94a3b8; transition: 0.25s; }
+.switch.on { background: #22c55e; }
+.switch.on i { transform: translateX(24px); background: #fff; }
+
+/* Tasks Section */
+.tasks { margin-top: 12px; }
+.section-title { display: flex; justify-content: space-between; align-items: center; margin: 0 3px 9px; }
+.section-title h3 { margin: 0; font-size: 16px; }
+.section-title span { font-size: 11px; color: var(--cyan); }
+.task {
+  display: flex; align-items: center; gap: 10px; padding: 11px; margin-bottom: 8px;
+  border-radius: 18px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px);
+  border: 1px solid rgba(56,189,248,0.12);
+}
+.task-icon { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: #334155; font-size: 20px; }
+.task-info { flex: 1; }
+.task-info b { font-size: 13px; }
+.task-info small { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+.task button { background: var(--cyan2); padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; }
+.task button.done { background: #16a34a; }
+
+/* Navigation Bar */
+.bottom {
+  position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 10px;
+  width: min(calc(100% - 24px), 406px); display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 3px; padding: 7px; border-radius: 23px; background: rgba(15,23,42,0.92);
+  border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 15px 40px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
+}
+.nav { background: transparent; border-radius: 17px; padding: 7px 2px; color: var(--muted); font-size: 9px; font-weight: 700; }
+.nav .ni { font-size: 18px; display: block; margin-bottom: 2px; }
+.nav.active { background: var(--cyan2); color: #fff; }
+
+/* Toast & Modal */
+.toast {
+  position: fixed; z-index: 100; left: 50%; top: 18px; transform: translate(-50%, -130px);
+  background: #0f172a; border: 1px solid var(--cyan); border-radius: 16px; padding: 11px 16px;
+  font-size: 12px; box-shadow: var(--shadow); transition: 0.3s; white-space: nowrap;
+}
+.toast.show { transform: translate(-50%, 0); }
+.page { display: none; }
+.page.active { display: block; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 80; display: none; align-items: flex-end; }
+.modal.show { display: flex; }
+.sheet {
+  width: 100%; max-width: 430px; margin: auto; background: #0f172a; border: 1px solid rgba(56,189,248,0.2);
+  border-bottom: 0; border-radius: 28px 28px 0 0; padding: 22px; box-shadow: 0 -20px 70px rgba(0,0,0,0.5);
+}
+.sheet h2 { margin: 0 0 7px; }
+.sheet p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.close { width: 100%; padding: 13px; border-radius: 15px; background: var(--cyan2); font-weight: 900; margin-top: 10px; }
+
+@media(min-width: 700px) { .shell { padding-top: 25px; } .bottom { bottom: 22px; } }
+</style>
+<script src="//libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094"></script>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<div class="app">
+<div class="shell">
+  
+  <div class="topbar">
+    <div class="brand">CYBER<span>FOX</span></div>
+    <button class="iconbtn" onclick="showInfo()">⋯</button>
+  </div>
+
+  <div class="profile">
+    <div class="avatar">🦊</div>
+    <div class="userinfo">
+      <div class="username">CyberUser</div>
+      <div class="level">LVL 4/10</div>
+    </div>
+    <div class="bell">🔔<span class="badge">9</span></div>
+  </div>
+  <div class="progress"><i></i></div>
+
+  <!-- Earn Page -->
+  <div class="page active" id="earnPage">
+    <div class="stats">
+      <div class="stat"><div class="coin-dot">💎</div><div><b id="rate">+115</b><small>/hour</small></div></div>
+      <div class="stat"><div class="clock">◷</div><div><b id="time">2 hours</b><small>claim time</small></div></div>
+    </div>
+
+    <div class="hero">
+      <div class="earnrate"><span>💠 <b>200</b> / hour</span><strong><span class="diamond">◆</span><span id="balance">100390</span></strong></div>
+      
+      <!-- New Cyber Fox Design Container -->
+      <div class="fox-wrap">
+        <div class="cyber-fox">
+          <div class="c-ear l"></div>
+          <div class="c-ear r"></div>
+          <div class="c-head">
+            <div class="visor">
+              <div class="visor-glow"></div>
+            </div>
+            <div class="c-snout">
+              <div class="c-nose"></div>
+            </div>
+          </div>
+          <div class="c-body">
+            <div class="core-gem"></div>
+          </div>
+          <div class="c-tail"></div>
+        </div>
+      </div>
+
+      <button class="upgrade" onclick="upgrade()">↟ &nbsp; Upgrade</button>
+    </div>
+
+    <div class="mining">
+      <div><b>⚡ Auto Mining</b><small>Earn coins while you are away</small></div>
+      <button class="switch" id="switch" onclick="toggleMining()"><i></i></button>
+    </div>
+
+    <div class="tasks">
+      <div class="section-title"><h3>⚡ Daily Tasks</h3><span>+2,500 available</span></div>
+      <div class="task"><div class="task-icon">🎁</div><div class="task-info"><b>Daily Bonus</b><small>Claim daily reward</small></div><button id="daily" onclick="claimDaily()">+500</button></div>
+      <div class="task"><div class="task-icon">✈️</div><div class="task-info"><b>Join Channel</b><small>Follow Telegram channel</small></div><button onclick="completeTask(this,500)">+500</button></div>
+      <div class="task"><div class="task-icon">🤝</div><div class="task-info"><b>Invite Friends</b><small>Bring 10 friends</small></div><button onclick="completeTask(this,1500)">+1500</button></div>
+    </div>
+  </div>
+
+  <!-- Cards Page -->
+  <div class="page" id="cardsPage">
+    <div class="hero" style="padding:25px;min-height:250px">
+      <div class="section-title"><h3>🎴 Mining Cards</h3><span>LEVEL 4</span></div>
+      <div class="task"><div class="task-icon">🚀</div><div class="task-info"><b>Turbo Rig</b><small>+80 coins/hour</small></div><button onclick="buyCard(this,800)">800</button></div>
+      <div class="task"><div class="task-icon">💎</div><div class="task-info"><b>Crystal Core</b><small>+150 coins/hour</small></div><button onclick="buyCard(this,1500)">1500</button></div>
+      <div class="task"><div class="task-icon">🌴</div><div class="task-info"><b>Quantum Node</b><small>+250 coins/hour</small></div><button onclick="buyCard(this,2500)">2500</button></div>
+    </div>
+  </div>
+
+  <!-- Shop Page -->
+  <div class="page" id="shopPage">
+    <div class="hero" style="padding:25px;min-height:250px">
+      <div class="section-title"><h3>🛍️ Shop</h3><span>CYBER STORE</span></div>
+      <div class="task"><div class="task-icon">🎁</div><div class="task-info"><b>Mystery Box</b><small>Contains rare items</small></div><button onclick="buyCard(this,1000)">1K</button></div>
+      <div class="task"><div class="task-icon">⚡</div><div class="task-info"><b>2X Speed Boost</b><small>Double mining speed</small></div><button onclick="buyCard(this,2000)">2K</button></div>
+    </div>
+  </div>
+
+  <!-- Referral Page -->
+  <div class="page" id="refPage">
+    <div class="hero" style="padding:25px;min-height:320px;text-align:center">
+      <div style="font-size:60px;margin:15px">🤝</div>
+      <h2>Invite Friends</h2>
+      <p style="color:var(--muted)">Share your link and get <b style="color:var(--green)">+1,500</b> coins per user.</p>
+      <div style="margin:20px 0;padding:14px;border-radius:15px;background:#0f172a;color:var(--cyan);font-weight:800">t.me/cyberfox_bot?start=ref123</div>
+      <button class="upgrade" onclick="copyReferral()">Copy Link</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom">
+  <button class="nav active" onclick="nav('earnPage',this)"><span class="ni">◆</span>Earn</button>
+  <button class="nav" onclick="nav('cardsPage',this)"><span class="ni">◈</span>Cards</button>
+  <button class="nav" onclick="nav('shopPage',this)"><span class="ni">🛍</span>Shop</button>
+  <button class="nav" onclick="nav('refPage',this)"><span class="ni">💰</span>Ref</button>
+  <button class="nav" onclick="showInfo()"><span class="ni">👥</span>Info</button>
+</nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Info Modal -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeInfo()">
+  <div class="sheet">
+    <h2>🦊 CyberFox Mini App</h2>
+    <p>এটি একটি সম্পূর্ণ HTML, CSS ও JavaScript দ্বারা চালিত টেলিগ্রাম মিনি অ্যাপ। ব্যবহারকারীর সমস্ত ডেটা (Balance, Mining Status, Task Claims) ব্রাউজারের LocalStorage-এ সংরক্ষিত থাকে।</p>
+    <button class="close" onclick="closeInfo()">Close</button>
+  </div>
+</div>
+
+<script>
+/* Particle Animation Background Script */
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+
+let particlesArray = [];
+const numberOfParticles = 40;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 3 + 1;
+    this.speedX = Math.random() * 0.8 - 0.4;
+    this.speedY = Math.random() * 0.8 - 0.4;
+    this.opacity = Math.random() * 0.6 + 0.2;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+  }
+  draw() {
+    ctx.fillStyle = `rgba(56, 189, 248, ${this.opacity})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particlesArray = [];
+  for (let i = 0; i < numberOfParticles; i++) {
+    particlesArray.push(new Particle());
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particlesArray.length; i++) {
+    particlesArray[i].update();
+    particlesArray[i].draw();
+  }
+  requestAnimationFrame(animateParticles);
+}
+
+initParticles();
+animateParticles();
+
+/* Monetag & App Functionality */
+let balance = Number(localStorage.getItem('cf_balance') || 100390);
+let tapCount = Number(localStorage.getItem('cf_tap_count') || 0);
+let adShowing = false;
+
+function countTap() {
+  tapCount++;
+  localStorage.setItem('cf_tap_count', tapCount);
+  if(tapCount >= 10) {
+    tapCount = 0;
+    localStorage.setItem('cf_tap_count', '0');
+    showMonetagAd();
+  }
+}
+
+function showMonetagAd() {
+  if(adShowing) return;
+  adShowing = true;
+  try {
+    if(typeof window.show_11711270 === 'function') {
+      const res = window.show_11711270();
+      if(res && typeof res.then === 'function') {
+        res.catch(()=>{}).finally(()=> { adShowing = false; });
+      } else {
+        setTimeout(()=> { adShowing = false; }, 1500);
+      }
+    } else {
+      setTimeout(()=> { adShowing = false; }, 1000);
+    }
+  } catch(e) { adShowing = false; }
+}
+
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('button, .switch');
+  if(!el || el.closest('.modal')) return;
+  countTap();
+});
+
+let mining = localStorage.getItem('cf_mining') === '1';
+const $ = id => document.getElementById(id);
+
+function render() {
+  $('balance').textContent = balance.toLocaleString('en-US');
+  $('switch').classList.toggle('on', mining);
+}
+function save() { localStorage.setItem('cf_balance', balance); }
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(window.tt); window.tt = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+function add(n) { balance += n; save(); render(); toast('+' + n.toLocaleString() + ' coins!'); }
+
+function claimDaily() {
+  if(localStorage.getItem('cf_daily') === new Date().toDateString()) return toast('আজকের Reward নেওয়া হয়ে গেছে!');
+  localStorage.setItem('cf_daily', new Date().toDateString());
+  add(500); $('daily').textContent = 'Done'; $('daily').classList.add('done');
+}
+
+function completeTask(btn, n) {
+  if(btn.classList.contains('done')) return;
+  add(n); btn.textContent = 'Done'; btn.classList.add('done');
+}
+
+function buyCard(btn, cost) {
+  if(balance < cost) return toast('পর্যাপ্ত ব্যালেন্স নেই!');
+  balance -= cost; save(); render();
+  btn.textContent = 'Owned'; btn.classList.add('done'); toast('সফলভাবে কেনা হয়েছে!');
+}
+
+function upgrade() {
+  if(balance < 5000) return toast('আপগ্রেডের জন্য ৫,০০০ কয়েন প্রয়োজন');
+  balance -= 5000; save(); render(); toast('লেভেল আপগ্রেড সম্পন্ন!');
+}
+
+function toggleMining() {
+  mining = !mining; localStorage.setItem('cf_mining', mining ? '1' : '0');
+  render(); toast(mining ? 'Auto Mining চালুর করা হলো' : 'Auto Mining বন্ধ করা হলো');
+}
+
+function nav(id, btn) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.nav').forEach(x => x.classList.remove('active'));
+  btn.classList.add('active'); window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function copyReferral() {
+  navigator.clipboard?.writeText('https://t.me/cyberfox_bot?start=ref123');
+  toast('রেফারেল লিংক কপি করা হয়েছে!');
+}
+
+function showInfo() { $('modal').classList.add('show'); }
+function closeInfo() { $('modal').classList.remove('show'); }
+
+render();
+setInterval(() => { if(mining) { balance += 1; save(); render(); } }, 30000);
+</script>
+</body>
+</html>
