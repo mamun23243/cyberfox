@@ -90,7 +90,7 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .earnrate strong { font-size: 38px; display: block; color: #fff; letter-spacing: 1px; }
 .diamond { color: var(--cyan); font-size: 30px; margin-right: 6px; text-shadow: 0 0 15px var(--cyan); }
 
-/* NEW CYBER-ROBOT FOX STYLES */
+/* CYBER-ROBOT FOX STYLES */
 .fox-wrap { height: 200px; position: relative; display: grid; place-items: center; }
 .cyber-fox {
   position: relative; width: 160px; height: 160px;
@@ -220,14 +220,16 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .modal.show { display: flex; }
 .sheet {
   width: 100%; max-width: 430px; margin: auto; background: #0f172a; border: 1px solid rgba(56,189,248,0.2);
-  border-bottom: 0; border-radius: 28px 28px 0 0; padding: 22px; box-shadow: 0 -20px 70px rgba(0,0,0,0.5);
+  border-bottom: 0; border-radius: 28px 28px 0 0; padding: 22px; box-shadow: 0 -20px 70px rgba(0,0,0,0.5); text-align: center;
 }
-.sheet h2 { margin: 0 0 7px; }
-.sheet p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.sheet h2 { margin: 0 0 10px; }
+.sheet p { color: var(--muted); font-size: 15px; font-weight: 600; margin: 15px 0 20px; }
 .close { width: 100%; padding: 13px; border-radius: 15px; background: var(--cyan2); font-weight: 900; margin-top: 10px; }
 
 @media(min-width: 700px) { .shell { padding-top: 25px; } .bottom { bottom: 22px; } }
 </style>
+
+<!-- Monetag SDK Script (Updated with Zone 11728094) -->
 <script src="//libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094"></script>
 </head>
 <body>
@@ -262,7 +264,7 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
     <div class="hero">
       <div class="earnrate"><span>💠 <b>200</b> / hour</span><strong><span class="diamond">◆</span><span id="balance">100390</span></strong></div>
       
-      <!-- New Cyber Fox Design Container -->
+      <!-- Cyber Fox Container -->
       <div class="fox-wrap">
         <div class="cyber-fox">
           <div class="c-ear l"></div>
@@ -346,18 +348,17 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 <div class="modal" id="modal" onclick="if(event.target===this)closeInfo()">
   <div class="sheet">
     <h2>🦊 CyberFox Mini App</h2>
-    <p>এটি একটি সম্পূর্ণ HTML, CSS ও JavaScript দ্বারা চালিত টেলিগ্রাম মিনি অ্যাপ। ব্যবহারকারীর সমস্ত ডেটা (Balance, Mining Status, Task Claims) ব্রাউজারের LocalStorage-এ সংরক্ষিত থাকে।</p>
+    <p>Coming Soon...</p>
     <button class="close" onclick="closeInfo()">Close</button>
   </div>
 </div>
 
 <script>
-/* Particle Animation Background Script */
+/* Canvas Background */
 const canvas = document.getElementById('particles-canvas');
 const ctx = canvas.getContext('2d');
-
 let particlesArray = [];
-const numberOfParticles = 40;
+const numberOfParticles = 30;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -391,9 +392,7 @@ class Particle {
 
 function initParticles() {
   particlesArray = [];
-  for (let i = 0; i < numberOfParticles; i++) {
-    particlesArray.push(new Particle());
-  }
+  for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 
 function animateParticles() {
@@ -404,11 +403,10 @@ function animateParticles() {
   }
   requestAnimationFrame(animateParticles);
 }
-
 initParticles();
 animateParticles();
 
-/* Monetag & App Functionality */
+/* Monetag Ads Integration Logic */
 let balance = Number(localStorage.getItem('cf_balance') || 100390);
 let tapCount = Number(localStorage.getItem('cf_tap_count') || 0);
 let adShowing = false;
@@ -426,20 +424,36 @@ function countTap() {
 function showMonetagAd() {
   if(adShowing) return;
   adShowing = true;
+
   try {
     if(typeof window.show_11711270 === 'function') {
-      const res = window.show_11711270();
-      if(res && typeof res.then === 'function') {
-        res.catch(()=>{}).finally(()=> { adShowing = false; });
+      const result = window.show_11711270();
+      if(result && typeof result.then === 'function') {
+        result.catch(()=>{}).finally(()=> { adShowing = false; });
       } else {
         setTimeout(()=> { adShowing = false; }, 1500);
       }
     } else {
-      setTimeout(()=> { adShowing = false; }, 1000);
+      // SDK delay retry mechanism
+      setTimeout(()=> {
+        try {
+          if(typeof window.show_11711270 === 'function') {
+            const result = window.show_11711270();
+            if(result && typeof result.then === 'function') result.catch(()=>{}).finally(()=> { adShowing = false; });
+            else setTimeout(()=> { adShowing = false; }, 1500);
+          } else {
+            adShowing = false;
+            toast('Ad service is loading. Try again.');
+          }
+        } catch(e) { adShowing = false; }
+      }, 1000);
     }
-  } catch(e) { adShowing = false; }
+  } catch(e) {
+    adShowing = false;
+  }
 }
 
+/* App Event Listeners & Actions */
 document.addEventListener('click', function(e) {
   const el = e.target.closest('button, .switch');
   if(!el || el.closest('.modal')) return;
@@ -486,7 +500,7 @@ function upgrade() {
 
 function toggleMining() {
   mining = !mining; localStorage.setItem('cf_mining', mining ? '1' : '0');
-  render(); toast(mining ? 'Auto Mining চালুর করা হলো' : 'Auto Mining বন্ধ করা হলো');
+  render(); toast(mining ? 'Auto Mining চালু করা হলো' : 'Auto Mining বন্ধ করা হলো');
 }
 
 function nav(id, btn) {
