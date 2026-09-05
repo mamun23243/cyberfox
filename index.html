@@ -6,8 +6,11 @@
 <meta name="theme-color" content="#070c18">
 <title>CyberFox — Telegram Mini App</title>
 
+<!-- Telegram WebApp SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <!-- Monetag Smart Tag Script Injection -->
-<script src="https://libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094"></script>
+<script src="//libtl.com/sdk.js" data-zone="11728094" data-sdk="show_11728094"></script>
 
 <style>
 :root {
@@ -28,7 +31,6 @@ html, body { margin: 0; min-height: 100%; font-family: Inter, system-ui, -apple-
 body { overflow-x: hidden; }
 button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 
-/* Canvas Particle Background */
 #particles-canvas {
   position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
 }
@@ -42,7 +44,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 }
 .shell { width: min(100%, 430px); margin: auto; position: relative; z-index: 2; padding: 12px 12px 100px; }
 
-/* Topbar */
 .topbar { height: 55px; display: flex; align-items: center; justify-content: space-between; }
 .brand { font-weight: 900; letter-spacing: 0.5px; font-size: 20px; }
 .brand span { color: var(--cyan); }
@@ -51,7 +52,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
   border: 1px solid rgba(56,189,248,0.2); display: grid; place-items: center; box-shadow: 0 7px 18px rgba(0,0,0,0.2);
 }
 
-/* User Profile */
 .profile {
   display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(10px); border: 1px solid rgba(56,189,248,0.2); border-radius: 20px; padding: 10px 12px; box-shadow: var(--shadow);
@@ -69,7 +69,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .progress { height: 6px; background: #1e293b; border-radius: 20px; margin: 10px 1px 14px; overflow: hidden; }
 .progress i { display: block; width: 45%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); }
 
-/* Stats */
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .stat {
   padding: 11px 12px; border-radius: 18px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px);
@@ -80,7 +79,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .coin-dot, .clock { width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; background: #8b5cf6; }
 .clock { background: #10b981; }
 
-/* Hero Section */
 .hero {
   margin-top: 12px; min-height: 360px; border-radius: 30px; position: relative; overflow: hidden;
   background: radial-gradient(circle at 50% 40%, rgba(56,189,248,0.25), transparent 40%), linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.9) 70%, rgba(2,132,199,0.8) 100%);
@@ -94,7 +92,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .earnrate strong { font-size: 38px; display: block; color: #fff; letter-spacing: 1px; }
 .diamond { color: var(--cyan); font-size: 30px; margin-right: 6px; text-shadow: 0 0 15px var(--cyan); }
 
-/* CYBER-ROBOT FOX STYLES */
 .fox-wrap { height: 200px; position: relative; display: grid; place-items: center; }
 .cyber-fox {
   position: relative; width: 160px; height: 160px;
@@ -171,7 +168,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 }
 .upgrade:active { transform: scale(0.97); }
 
-/* Mining Switch */
 .mining {
   margin-top: 12px; padding: 14px; border-radius: 22px; background: rgba(15,23,42,0.85);
   border: 1px solid rgba(56,189,248,0.15); display: flex; align-items: center; justify-content: space-between;
@@ -183,7 +179,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .switch.on { background: #22c55e; }
 .switch.on i { transform: translateX(24px); background: #fff; }
 
-/* Tasks Section */
 .tasks { margin-top: 12px; }
 .section-title { display: flex; justify-content: space-between; align-items: center; margin: 0 3px 9px; }
 .section-title h3 { margin: 0; font-size: 16px; }
@@ -200,7 +195,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .task button { background: var(--cyan2); padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; }
 .task button.done { background: #16a34a; }
 
-/* Navigation Bar */
 .bottom {
   position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 10px;
   width: min(calc(100% - 24px), 406px); display: grid; grid-template-columns: repeat(5, 1fr);
@@ -211,7 +205,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .nav .ni { font-size: 18px; display: block; margin-bottom: 2px; }
 .nav.active { background: var(--cyan2); color: #fff; }
 
-/* Toast & Modal */
 .toast {
   position: fixed; z-index: 100; left: 50%; top: 18px; transform: translate(-50%, -130px);
   background: #0f172a; border: 1px solid var(--cyan); border-radius: 16px; padding: 11px 16px;
@@ -265,7 +258,6 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
     <div class="hero">
       <div class="earnrate"><span>💠 <b>200</b> / hour</span><strong><span class="diamond">◆</span><span id="balance">100390</span></strong></div>
       
-      <!-- Cyber Fox Container -->
       <div class="fox-wrap">
         <div class="cyber-fox">
           <div class="c-ear l"></div>
@@ -355,7 +347,12 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 </div>
 
 <script>
-/* Canvas Background */
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+}
+
+/* Canvas Particles */
 const canvas = document.getElementById('particles-canvas');
 const ctx = canvas.getContext('2d');
 let particlesArray = [];
@@ -407,14 +404,14 @@ function animateParticles() {
 initParticles();
 animateParticles();
 
-/* DIRECT MONETAG AD TRIGGER (OVERRIDE BLOCKING) */
+/* MONETAG AD SYSTEM WITH DIRECT LINK FALLBACK */
 let balance = Number(localStorage.getItem('cf_balance') || 100390);
 let tapCount = Number(localStorage.getItem('cf_tap_count') || 0);
 
 function countTap() {
   tapCount++;
   localStorage.setItem('cf_tap_count', tapCount);
-  if(tapCount >= 10) {
+  if(tapCount >= 5) {
     tapCount = 0;
     localStorage.setItem('cf_tap_count', '0');
     showMonetagAd();
@@ -422,37 +419,36 @@ function countTap() {
 }
 
 function showMonetagAd() {
-  // Check direct SDK Function
   if (typeof window.show_11711270 === 'function') {
     window.show_11711270().then(() => {
       toast('Ad Completed!');
-    }).catch((err) => {
-      // Fallback redirect URL if popup blocked
-      console.log("Ad execution warning: ", err);
+    }).catch(() => {
+      openFallbackAd();
     });
   } else if (typeof window.showPromise === 'function') {
     window.showPromise().then(() => {
       toast('Ad Completed!');
+    }).catch(() => {
+      openFallbackAd();
     });
   } else {
-    // Dynamic Re-injection Fallback
-    const s = document.createElement('script');
-    s.src = '//libtl.com/sdk.js';
-    s.dataset.zone = '11728094';
-    s.dataset.sdk = 'show_11728094';
-    document.head.appendChild(s);
-    
-    setTimeout(() => {
-      if (typeof window.show_11711270 === 'function') {
-        window.show_11711270();
-      } else {
-        toast('Ad Provider Busy. Try Again!');
-      }
-    }, 1200);
+    openFallbackAd();
   }
 }
 
-/* App Event Listeners & Actions */
+function openFallbackAd() {
+  // আপনার Monetag Smartlink / Direct Link টি এখানে বসাবেন
+  const directLink = "https://omg10.com/4/11734317"; 
+  
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+    window.Telegram.WebApp.openLink(directLink);
+  } else {
+    window.open(directLink, '_blank');
+  }
+  toast('Loading Ad...');
+}
+
+/* Application Controls */
 document.addEventListener('click', function(e) {
   const el = e.target.closest('button, .switch');
   if(!el || el.closest('.modal')) return;
